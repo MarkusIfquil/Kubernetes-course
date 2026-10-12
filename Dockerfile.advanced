@@ -1,0 +1,26 @@
+# Stage 1: build: has the Rust toolchain
+FROM rust:1.100 AS build
+WORKDIR /src
+# Cargo.toml changes rarely → this layer stays cached
+COPY Cargo.toml Cargo.lock ./
+RUN mkdir src \
+    && printf 'fn main() {}\n' > src/main.rs \
+    && cargo build --release \
+    && rm -rf src
+# your code changes often → only this step and below rebuild
+COPY src ./src
+RUN touch src/main.rs && cargo build --release
+# an empty directory for the volume (distroless has no mkdir)
+RUN mkdir /data
+
+# Stage 2: run: only what we copy across
+FROM gcr.io/distroless/cc-debian12:nonroot
+COPY --from=build /src/target/release/hello /server
+# the volume directory must belong to the user that writes to it
+COPY --from=build --chown=65532:65532 /data /data
+VOLUME /data
+# documentation: the server listens here (unless PORT says otherwise)
+EXPOSE 8080
+# numeric, so Kubernetes can verify it is not root
+USER 65532:65532
+ENTRYPOINT ["/server"]
