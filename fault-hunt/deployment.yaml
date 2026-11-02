@@ -41,5 +41,5 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8008
+              port: 8080
             periodSeconds: 10
