@@ -26,7 +26,7 @@ spec:
             requests:
               cpu: "64m"
             limits:
-              memory: 2Mi
+              memory: 128Mi
           startupProbe:
             httpGet:
               path: /healthz
