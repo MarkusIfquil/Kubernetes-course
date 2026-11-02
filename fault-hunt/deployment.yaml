@@ -24,7 +24,7 @@ spec:
             - containerPort: 8080
           resources:
             requests:
-              cpu: "64"
+              cpu: "64m"
             limits:
               memory: 2Mi
           startupProbe:
